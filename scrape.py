@@ -398,6 +398,8 @@ def main(network):
 # objects for dead
 if __name__ == "__main__":
     import main as NN
+    import pickle
 
     NB = NN.NetworkBatch((16, [20, 4]), .02, 20)
-    NB.train(main, 10)
+    NB.train(main, 2)
+    pickle.dump(NB.best, open("best.ai","wb"))

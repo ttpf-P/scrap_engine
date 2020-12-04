@@ -49,6 +49,7 @@ class NetworkBatch:
             self.networks.append(NeuralNetwork(structure, lr))
         self.lr = lr
         self.gen_size = gen_size
+        self.best = None
 
     def train(self, score_func, generations):
         for gen in range(generations):
@@ -70,6 +71,7 @@ class NetworkBatch:
             else:
                 logger.debug(str(scores[0][0]) + "\t" + str(scores[-1][0]))
             del networks_new
+            self.best = scores[0][1]
             del scores
 
 
