@@ -254,7 +254,7 @@ def main(network):
     os.system("")
 
     walkframe = genframe0 = genframe1 = apple_num = berry_num = framenum = 0
-    walkstep = 5
+    walkstep = 1
 
     width, height = 100, 40
     map = se.Map(height - 1, width, " ")
@@ -383,16 +383,16 @@ def main(network):
                 dead()
             set = False
             walkframe += walkstep
-        if genframe0 + 150 == framenum:
+        if genframe0 + 75 == framenum:
             applegen()
-            genframe0 += 150
-        if genframe1 + 400 == framenum:
+            genframe0 += 75
+        if genframe1 + 200 == framenum:
             berrygen()
-            genframe1 += 400
+            genframe1 += 200
         mapresize()
         map.show()
         framenum += 1
-    return 4000 - len(snake.obs)
+    return -1*(len(snake.obs) + framenum/10000)
 
 
 # objects for dead
@@ -400,6 +400,6 @@ if __name__ == "__main__":
     import main as NN
     import pickle
 
-    NB = NN.NetworkBatch((16, [20, 4]), .02, 20)
-    NB.train(main, 2)
+    NB = NN.NetworkBatch((16, [40, 40, 4]), .05, 160)
+    NB.train(main, 2000)
     pickle.dump(NB.best, open("best.ai","wb"))

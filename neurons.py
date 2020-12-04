@@ -17,6 +17,9 @@ class Neuron:
 
     def mutate(self, lr, score):
         for synapse in range(len(self.predecessors)):
+            score = (10000 + score)/10000
+            if score <= 0:
+                score = 0.000001
             rand = random.uniform(-lr * score, lr * score)
             #print(rand)
             self.predecessors[synapse][1] += rand
