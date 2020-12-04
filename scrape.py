@@ -4,7 +4,6 @@
 import os
 import random
 import sys
-import time
 from pathlib import Path
 
 import scrap_engine as se
@@ -279,25 +278,74 @@ def main(network):
 
     while alive:
         map_raw = snake.obs[0].map.map
-        map_parsed = []
+        """map_parsed = []
         for line in map_raw:
             for item in line:
                 map_parsed.append(ai_lookup[item])
         for i in range(len(map_parsed)):
-            network.network[0][i].value = map_parsed[i]
+            network.network[0][i].value = map_parsed[i]"""
+
+        inputs = []
+        # scan directions
+        up_scan = [-1, -1, -1]
+        for y in range(0, snake.obs[0].y):
+            map_ = map_raw[y][snake.obs[0].x]
+            if ai_lookup[map_] == 1 and up_scan[0] == -1:
+                up_scan[0] = y
+            elif ai_lookup[map_] == -1 and up_scan[1] == -1:
+                up_scan[1] = y
+            elif ai_lookup[map_] == 2 and up_scan[2] == -1:
+                up_scan[2] = y
+
+        down_scan = [-1, -1, -1]
+        for y in range(snake.obs[0].y, 39):
+            map_ = map_raw[y][snake.obs[0].x]
+            if ai_lookup[map_] == 1 and down_scan[0] == -1:
+                down_scan[0] = y
+            elif ai_lookup[map_] == -1 and down_scan[1] == -1:
+                down_scan[1] = y
+            elif ai_lookup[map_] == 2 and down_scan[2] == -1:
+                down_scan[2] = y
+
+        left_scan = [-1, -1, -1]
+        for x in range(0, snake.obs[0].x):
+            map_ = map_raw[snake.obs[0].y][x]
+            if ai_lookup[map_] == 1 and left_scan[0] == -1:
+                left_scan[0] = x
+            elif ai_lookup[map_] == -1 and left_scan[1] == -1:
+                left_scan[1] = x
+            elif ai_lookup[map_] == 2 and left_scan[2] == -1:
+                left_scan[2] = x
+
+        right_scan = [-1, -1, -1]
+        for x in range(snake.obs[0].x, 100):
+            map_ = map_raw[snake.obs[0].y][x]
+            if ai_lookup[map_] == 1 and right_scan[0] == -1:
+                right_scan[0] = x
+            elif ai_lookup[map_] == -1 and right_scan[1] == -1:
+                right_scan[1] = x
+            elif ai_lookup[map_] == 2 and right_scan[2] == -1:
+                right_scan[2] = x
+
+        for i in up_scan:
+            inputs.append(i)
+        for i in down_scan:
+            inputs.append(i)
+        for i in left_scan:
+            inputs.append(i)
+        for i in right_scan:
+            inputs.append(i)
+
+        for i in range(len(inputs)):
+            network.network[0][i].value = inputs[i]
+
+        inputs.append(snake.obs[0].y)
+        inputs.append(39 - snake.obs[0].y)
+        inputs.append(snake.obs[0].x)
+        inputs.append(100 - snake.obs[0].x)
 
         network.run()
 
-        """if network.network[-1][0].value <= 0:
-            if network.network[-1][1].value <= 0:
-                ev = "'w'"
-            else:
-                ev = "'s'"
-        else:
-            if network.network[-1][1].value <= 0:
-                ev = "'a'"
-            else:
-                ev = "'d'"""""
         chosen = max((network.network[-1][0].value, 0), (network.network[-1][1].value, 1),
             (network.network[-1][2].value, 2), (network.network[-1][3].value, 3))
         ev = ai_lookup_dir[chosen[1]]
@@ -351,5 +399,5 @@ def main(network):
 if __name__ == "__main__":
     import main as NN
 
-    NB = NN.NetworkBatch((4000, [20, 4]), .02, 20)
+    NB = NN.NetworkBatch((12, [20, 4]), .02, 20)
     NB.train(main, 10)
