@@ -336,13 +336,13 @@ def main(network):
         for i in right_scan:
             inputs.append(i)
 
-        for i in range(len(inputs)):
-            network.network[0][i].value = inputs[i]
-
         inputs.append(snake.obs[0].y)
         inputs.append(39 - snake.obs[0].y)
         inputs.append(snake.obs[0].x)
         inputs.append(100 - snake.obs[0].x)
+
+        for i in range(len(inputs)):
+            network.network[0][i].value = inputs[i]
 
         network.run()
 
@@ -399,5 +399,5 @@ def main(network):
 if __name__ == "__main__":
     import main as NN
 
-    NB = NN.NetworkBatch((12, [20, 4]), .02, 20)
+    NB = NN.NetworkBatch((16, [20, 4]), .02, 20)
     NB.train(main, 10)
