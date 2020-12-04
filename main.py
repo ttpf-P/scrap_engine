@@ -66,9 +66,9 @@ class NetworkBatch:
             del self.networks
             self.networks = networks_new
             if gen % 100 == 0:
-                logger.info(scores[0][0], "  \t", scores[-1][0])
+                logger.info(str(scores[0][0]) + "\t" + str(scores[-1][0]))
             else:
-                logger.debug(scores[0][0], "  \t", scores[-1][0])
+                logger.debug(str(scores[0][0]) + "\t" + str(scores[-1][0]))
             del networks_new
             del scores
 

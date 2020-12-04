@@ -4,7 +4,6 @@
 import os
 import random
 import sys
-import threading
 import time
 from pathlib import Path
 
@@ -164,14 +163,14 @@ def dead_():
             elif deadmenuind.ry == deadmenutext2.ry:
                 exit()
             ev = 0
-        else:
-            time.sleep(0.05)
         menuresize(deadmap, deadbox)
         deadmap.show()
+
 
 def dead():
     global alive
     alive = False
+
 
 def menu():
     global ev, curscore
@@ -208,8 +207,6 @@ def menu():
             elif menuind.ry == menutext3.ry:
                 exit()
             ev = 0
-        else:
-            time.sleep(0.05)
         menuresize(menumap, menubox)
         menumap.show()
 
@@ -257,7 +254,6 @@ def main(network):
     ev = 0
     os.system("")
 
-
     walkframe = genframe0 = genframe1 = apple_num = berry_num = framenum = 0
     walkstep = 5
 
@@ -278,6 +274,8 @@ def main(network):
     set = False
 
     ai_lookup = {" ": 0, "#": 1, "\x1b[32;1ma\x1b[0m": -1, "\x1b[31;1ms\x1b[0m": 2}
+    ai_lookup_dir = {0: "'w'", 1: "'s'", 2: "'a'", 3: "'d'"}
+
 
     while alive:
         map_raw = snake.obs[0].map.map
@@ -290,7 +288,7 @@ def main(network):
 
         network.run()
 
-        if network.network[-1][0].value <= 0:
+        """if network.network[-1][0].value <= 0:
             if network.network[-1][1].value <= 0:
                 ev = "'w'"
             else:
@@ -299,8 +297,10 @@ def main(network):
             if network.network[-1][1].value <= 0:
                 ev = "'a'"
             else:
-                ev = "'d'"
-
+                ev = "'d'"""""
+        chosen = max((network.network[-1][0].value, 0), (network.network[-1][1].value, 1),
+            (network.network[-1][2].value, 2), (network.network[-1][3].value, 3))
+        ev = ai_lookup_dir[chosen[1]]
 
 
         for arr in [["'w'", "b", "t"], ["'a'", "r", "l"], ["'s'", "t", "b"], ["'d'", "l", "r"]]:
@@ -314,8 +314,6 @@ def main(network):
             mapresize()
             map.show(init=True)
             ev = 0
-        else:
-            time.sleep(0.01)
         if walkframe + walkstep == framenum:
             start.oldx = oldx = start.x
             start.oldy = oldy = start.y
@@ -346,14 +344,12 @@ def main(network):
         mapresize()
         map.show()
         framenum += 1
-    return 4000-len(snake.obs)
-
-
+    return 4000 - len(snake.obs)
 
 
 # objects for dead
 if __name__ == "__main__":
     import main as NN
-    NB = NN.NetworkBatch((4000, [20, 2]), .02, 20)
-    NB.train(main, 10)
 
+    NB = NN.NetworkBatch((4000, [20, 4]), .02, 20)
+    NB.train(main, 10)
