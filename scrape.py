@@ -108,7 +108,7 @@ def menuresize(map, box):
 
 
 def mapresize():
-    width, height = os.get_terminal_size()
+    width, height = 100, 40
     if map.width != width or map.height != height - 1:
         try:
             map.resize(height - 1, width, " ")
@@ -116,7 +116,7 @@ def mapresize():
             pass
 
 
-def dead():
+def dead_():
     global ev, scoretext, highscoretext
     ev = 0
     deadmenuind.index = 1
@@ -169,6 +169,9 @@ def dead():
         menuresize(deadmap, deadbox)
         deadmap.show()
 
+def dead():
+    global alive
+    alive = False
 
 def menu():
     global ev, curscore
@@ -211,12 +214,54 @@ def menu():
         menumap.show()
 
 
-def main():
+def main(network):
+    global alive
+    alive = True
     global ev, apple_num, berry_num, map, walkstep, walkframe, snake
+    global deadmap, deadbox, deadtext, scoretext, highscoretext, deadmenutext1, deadmenutext2, deadmenuind
+    global menumap, menubox, menutext, curscore, menutext1, menutext2, menutext3, menuind
+
+    deadmap = se.Map(background=" ")
+    deadbox = se.Box(13, 28)
+    deadtext = se.Text("You dead!")
+    scoretext = se.Text("You scored 0 points")
+    highscoretext = se.Text("Highscore: 0")
+    deadmenutext1 = se.Text("Try again")
+    deadmenutext2 = se.Text("Exit")
+    deadmenuind = se.Object("*")
+    deadbox.add_ob(deadtext, 9, 0)
+    deadbox.add_ob(scoretext, 3, 2)
+    deadbox.add_ob(highscoretext, 7, 3)
+    deadbox.add_ob(deadmenutext1, 9, 9)
+    deadbox.add_ob(deadmenutext2, 11, 11)
+    deadbox.add_ob(deadmenuind, 7, 9)
+    deadbox.add(deadmap, round((deadmap.width - deadbox.width) / 2), 1 + round((deadmap.height - deadbox.height) / 2))
+
+    # Objects for menu
+    menumap = se.Map(background=" ")
+    menubox = se.Box(13, 28)
+    menutext = se.Text("Menu:")
+    curscore = se.Text("Current score: 0 points")
+    menutext1 = se.Text("Resume")
+    menutext2 = se.Text("Restart")
+    menutext3 = se.Text("Exit")
+    menuind = se.Object("*")
+    menubox.add_ob(menutext, 12, 0)
+    menubox.add_ob(curscore, 2, 2)
+    menubox.add_ob(menutext1, 11, 7)
+    menubox.add_ob(menutext2, 11, 9)
+    menubox.add_ob(menutext3, 12, 11)
+    menubox.add_ob(menuind, 9, 7)
+    menubox.add(menumap, round((menumap.width - menubox.width) / 2), 1 + round((menumap.height - menubox.height) / 2))
+
+    ev = 0
+    os.system("")
+
+
     walkframe = genframe0 = genframe1 = apple_num = berry_num = framenum = 0
     walkstep = 5
 
-    width, height = os.get_terminal_size()
+    width, height = 100, 40
     map = se.Map(height - 1, width, " ")
 
     start = Start("#")
@@ -231,7 +276,33 @@ def main():
 
     map.show()
     set = False
-    while True:
+
+    ai_lookup = {" ": 0, "#": 1, "\x1b[32;1ma\x1b[0m": -1, "\x1b[31;1ms\x1b[0m": 2}
+
+    while alive:
+        map_raw = snake.obs[0].map.map
+        map_parsed = []
+        for line in map_raw:
+            for item in line:
+                map_parsed.append(ai_lookup[item])
+        for i in range(len(map_parsed)):
+            network.network[0][i].value = map_parsed[i]
+
+        network.run()
+
+        if network.network[-1][0].value <= 0:
+            if network.network[-1][1].value <= 0:
+                ev = "'w'"
+            else:
+                ev = "'s'"
+        else:
+            if network.network[-1][1].value <= 0:
+                ev = "'a'"
+            else:
+                ev = "'d'"
+
+
+
         for arr in [["'w'", "b", "t"], ["'a'", "r", "l"], ["'s'", "t", "b"], ["'d'", "l", "r"]]:
             if ev == arr[0]:
                 if start.direction != arr[1] and not set:
@@ -275,48 +346,14 @@ def main():
         mapresize()
         map.show()
         framenum += 1
+    return 4000-len(snake.obs)
+
+
 
 
 # objects for dead
-deadmap = se.Map(background=" ")
-deadbox = se.Box(13, 28)
-deadtext = se.Text("You dead!")
-scoretext = se.Text("You scored 0 points")
-highscoretext = se.Text("Highscore: 0")
-deadmenutext1 = se.Text("Try again")
-deadmenutext2 = se.Text("Exit")
-deadmenuind = se.Object("*")
-deadbox.add_ob(deadtext, 9, 0)
-deadbox.add_ob(scoretext, 3, 2)
-deadbox.add_ob(highscoretext, 7, 3)
-deadbox.add_ob(deadmenutext1, 9, 9)
-deadbox.add_ob(deadmenutext2, 11, 11)
-deadbox.add_ob(deadmenuind, 7, 9)
-deadbox.add(deadmap, round((deadmap.width - deadbox.width) / 2), 1 + round((deadmap.height - deadbox.height) / 2))
+if __name__ == "__main__":
+    import main as NN
+    NB = NN.NetworkBatch((4000, [20, 2]), .02, 20)
+    NB.train(main, 10)
 
-# Objects for menu
-menumap = se.Map(background=" ")
-menubox = se.Box(13, 28)
-menutext = se.Text("Menu:")
-curscore = se.Text("Current score: 0 points")
-menutext1 = se.Text("Resume")
-menutext2 = se.Text("Restart")
-menutext3 = se.Text("Exit")
-menuind = se.Object("*")
-menubox.add_ob(menutext, 12, 0)
-menubox.add_ob(curscore, 2, 2)
-menubox.add_ob(menutext1, 11, 7)
-menubox.add_ob(menutext2, 11, 9)
-menubox.add_ob(menutext3, 12, 11)
-menubox.add_ob(menuind, 9, 7)
-menubox.add(menumap, round((menumap.width - menubox.width) / 2), 1 + round((menumap.height - menubox.height) / 2))
-
-ev = 0
-os.system("")
-recognising = threading.Thread(target=recogniser)
-recognising.daemon = True
-recognising.start()
-try:
-    main()
-except KeyboardInterrupt:
-    print("Exited by user")

@@ -1,7 +1,11 @@
 import neurons
 import random
 import copy
-
+import logging
+logger = logging.Logger("ai")
+handler = logging.FileHandler("ai.log")
+logger.addHandler(handler)
+logger.setLevel(logging.DEBUG)
 
 class NeuralNetwork:
     def __init__(self, structure, lr=0.05):
@@ -9,9 +13,18 @@ class NeuralNetwork:
         self.lr = lr
 
     def generate(self, structure):
-        network = [[neurons.InputNeuron()], [neurons.Neuron()]]
-        network[0][0].value = 1
-        network[1][0].predecessors = [[network[0][0], 1]]
+        a = 0
+        network = [[]]
+        for i in range(structure[0]):
+            network[0].append(neurons.InputNeuron())
+        for i in structure[1]:
+            network.append([])
+            a += 1
+            for x in range(i):
+                network[a].append(neurons.Neuron())
+                for neuron in network[a-1]:
+                    network[a][x].predecessors.append([neuron, random.uniform(-1,1)])
+        #network[1][0].predecessors = [[network[0][0], 1]]
         return network
 
     def run(self):
@@ -32,6 +45,7 @@ class NetworkBatch:
     def __init__(self, structure, lr, gen_size):
         self.networks = []
         for _ in range(gen_size):
+            print("gen")
             self.networks.append(NeuralNetwork(structure, lr))
         self.lr = lr
         self.gen_size = gen_size
@@ -43,7 +57,7 @@ class NetworkBatch:
                 scores.append((score_func(network), network))
             scores.sort()
             networks_new = []
-            scores_cut = scores[:2]
+            scores_cut = scores[:3]
             for i in range(self.gen_size):
                 chosen = random.choice(scores_cut)
                 networks_new.append(copy.deepcopy(chosen[1]))
@@ -52,8 +66,9 @@ class NetworkBatch:
             del self.networks
             self.networks = networks_new
             if gen % 100 == 0:
-                print(scores[0][0], "@", scores[0][1].network[-1][0].predecessors[0][1], "  \t",
-                      scores[-1][0], "@", scores[0][1].network[-1][0].predecessors[0][1])
+                logger.info(scores[0][0], "  \t", scores[-1][0])
+            else:
+                logger.debug(scores[0][0], "  \t", scores[-1][0])
             del networks_new
             del scores
 
@@ -71,5 +86,5 @@ if __name__ == "__main__":
         network.run()
         return abs(network.network[-1][0].value)
 
-    NB = NetworkBatch((), 0.0001, 200)
+    NB = NetworkBatch((1,[1]), 0.0001, 200)
     NB.train(score_func, 20000)
