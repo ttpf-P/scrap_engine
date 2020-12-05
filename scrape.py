@@ -400,6 +400,7 @@ if __name__ == "__main__":
     import main as NN
     import pickle
 
-    NB = NN.NetworkBatch((16, [40, 40, 4]), .05, 160)
-    NB.train(main, 2000)
-    pickle.dump(NB.best, open("best.ai","wb"))
+    NB = NN.NetworkBatch((16, [40, 40, 4]), .2, 500)
+    NB.train(main, 5000)
+    pickle.dump(NB.best, open("best"+str(ai)+".ai","wb"))
+

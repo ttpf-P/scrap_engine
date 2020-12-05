@@ -2,6 +2,7 @@ import neurons
 import random
 import copy
 import logging
+import pickle
 logger = logging.Logger("ai")
 handler = logging.FileHandler("ai.log")
 logger.addHandler(handler)
@@ -58,7 +59,7 @@ class NetworkBatch:
                 scores.append((score_func(network), network))
             scores.sort()
             networks_new = []
-            scores_cut = scores[:3]
+            scores_cut = scores[:20]
             for i in range(self.gen_size):
                 chosen = random.choice(scores_cut)
                 networks_new.append(copy.deepcopy(chosen[1]))
@@ -68,6 +69,7 @@ class NetworkBatch:
             self.networks = networks_new
             if gen % 100 == 0:
                 logger.info(str(scores[0][0]) + "\t" + str(scores[-1][0]))
+                pickle.dump(self.best, open(str(gen/100) + ".ai", "wb"))
             else:
                 logger.debug(str(scores[0][0]) + "\t" + str(scores[-1][0]))
             del networks_new
