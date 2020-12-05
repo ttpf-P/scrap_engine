@@ -72,31 +72,6 @@ def berrygen():
     berry_num += 1
 
 
-def on_press(key):
-    global ev
-    ev = str(key)
-
-
-if sys.platform == "linux":  # Use another (not on xserver relying) way to read keyboard input, to make this shit work in tty or via ssh, where no xserver is available
-    def recogniser():
-        global ev
-        while True:
-            a = os.popen('./reader.sh').read()
-            if a == "\n":
-                ev = "Key.enter"
-            else:
-                ev = "'" + a.rstrip() + "'"
-else:
-    from pynput.keyboard import Listener
-
-
-    def recogniser():
-        global ev
-        while True:
-            with Listener(on_press=on_press) as listener:
-                listener.join()
-
-
 def menuresize(map, box):
     width, height = os.get_terminal_size()
     if map.width != width or map.height != height - 1:
@@ -276,7 +251,7 @@ def main(network):
     ai_lookup_dir = {0: "'w'", 1: "'s'", 2: "'a'", 3: "'d'"}
 
 
-    while alive:
+    while alive and framenum < 75000:
         map_raw = snake.obs[0].map.map
         """map_parsed = []
         for line in map_raw:
@@ -402,5 +377,5 @@ if __name__ == "__main__":
 
     NB = NN.NetworkBatch((16, [40, 40, 4]), .2, 500)
     NB.train(main, 5000)
-    pickle.dump(NB.best, open("best"+str(ai)+".ai","wb"))
+    pickle.dump(NB.best, open("best.ai", "wb"))
 
