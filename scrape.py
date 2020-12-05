@@ -5,6 +5,8 @@ import os
 import random
 import sys
 from pathlib import Path
+import logging
+logging.basicConfig("scrape.log")
 
 import scrap_engine as se
 
@@ -349,11 +351,15 @@ def main(network):
             elif start.direction == "r":
                 start.set(start.x + 1, start.y)
             for ob in snake.obs[1:]:
-                ob.oldx = ob.x
-                ob.oldy = ob.y
-                ob.set(oldx, oldy)
-                oldx = ob.oldx
-                oldy = ob.oldy
+                try:
+                    ob.oldx = ob.x
+                    ob.oldy = ob.y
+                    ob.set(oldx, oldy)
+                    oldx = ob.oldx
+                    oldy = ob.oldy
+                except AttributeError:
+                    logging.ERROR("obs errored")
+                    return 0
             if len(snake.obs) == 0:
                 dead()
             set = False
