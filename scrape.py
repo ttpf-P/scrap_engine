@@ -6,7 +6,7 @@ import random
 import sys
 from pathlib import Path
 import logging
-logging.basicConfig("scrape.log")
+logging.basicConfig(filename="scrape.log")
 
 import scrap_engine as se
 
