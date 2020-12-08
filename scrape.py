@@ -246,7 +246,9 @@ def main(network):
 
     start.direction = "t"
 
-    map.show()
+    global show
+    if show:
+        map.show()
     set = False
 
     ai_lookup = {" ": 0, "#": 1, "\x1b[32;1ma\x1b[0m": -1, "\x1b[31;1ms\x1b[0m": 2}
@@ -337,7 +339,8 @@ def main(network):
         if ev == "'m'":
             menu()
             mapresize()
-            map.show(init=True)
+            if show:
+                map.show(init=True)
             ev = 0
         if walkframe + walkstep == framenum:
             start.oldx = oldx = start.x
@@ -371,7 +374,8 @@ def main(network):
             berrygen()
             genframe1 += 200
         mapresize()
-        map.show()
+        if show:
+            map.show()
         framenum += 1
     return -1*(len(snake.obs) + framenum/10000)
 
@@ -385,6 +389,11 @@ if __name__ == "__main__":
     """NB = NN.NetworkBatch((16, [40, 40, 4]), .2, 500)
     NB.train(main, 5000)
     pickle.dump(NB.best, open("best.ai", "wb"))"""
+    show = data["show"]
+    if not show:
+        import sys
+        handler = logging.StreamHandler(sys.stdout)
+        NN.logger.addHandler(handler)
     NB = NN.NetworkBatch(data["structure"], data["lr"], data["batch_size"])
     NB.train(main, data["generations"])
     pickle.dump(NB.best, open("best.ai", "wb"))
