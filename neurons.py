@@ -1,5 +1,6 @@
 import random
 
+
 class Neuron:
     def __init__(self):
         self.predecessors = []
@@ -9,7 +10,7 @@ class Neuron:
         value_new = 0
         length = len(self.predecessors)
         for synapse in range(length):
-            value_new += self.predecessors[synapse][0].value*self.predecessors[synapse][1]
+            value_new += self.predecessors[synapse][0].value * self.predecessors[synapse][1]
         self.value = value_new / length
         del value_new
         del length
@@ -17,11 +18,11 @@ class Neuron:
 
     def mutate(self, lr, score):
         for synapse in range(len(self.predecessors)):
-            score = (10000 + score)/10000
+            score = (10000 + score) / 10000
             if score <= 0:
                 score = 0.000001
             rand = random.uniform(-lr * score, lr * score)
-            #print(rand)
+            # print(rand)
             self.predecessors[synapse][1] += rand
             del rand
         del synapse

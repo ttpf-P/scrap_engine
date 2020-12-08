@@ -385,15 +385,22 @@ if __name__ == "__main__":
     import main as NN
     import pickle
     import json
+
     data = json.load(open("main.conf", "r"))
     """NB = NN.NetworkBatch((16, [40, 40, 4]), .2, 500)
     NB.train(main, 5000)
     pickle.dump(NB.best, open("best.ai", "wb"))"""
     show = data["show"]
-    if not show:
+    if show == False:
+        print("logging")
         import sys
         handler = logging.StreamHandler(sys.stdout)
         NN.logger.addHandler(handler)
+
+    file = input("ai to load(leave empty to generate new): ")
+    if file != "":
+        data["structure"] = pickle.load(open(file, "rb"))
+        print(data["structure"])
     NB = NN.NetworkBatch(data["structure"], data["lr"], data["batch_size"])
     NB.train(main, data["generations"])
     pickle.dump(NB.best, open("best.ai", "wb"))

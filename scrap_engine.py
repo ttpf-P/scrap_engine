@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import os
 
 width, height = 100, 40
 

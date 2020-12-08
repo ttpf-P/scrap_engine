@@ -1,12 +1,15 @@
-import neurons
-import random
 import copy
 import logging
 import pickle
+import random
+
+import neurons
+
 logger = logging.Logger("ai")
 handler = logging.FileHandler("ai.log")
 logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
+
 
 class NeuralNetwork:
     def __init__(self, structure, lr=0.05):
@@ -23,9 +26,9 @@ class NeuralNetwork:
             a += 1
             for x in range(i):
                 network[a].append(neurons.Neuron())
-                for neuron in network[a-1]:
-                    network[a][x].predecessors.append([neuron, random.uniform(-1,1)])
-        #network[1][0].predecessors = [[network[0][0], 1]]
+                for neuron in network[a - 1]:
+                    network[a][x].predecessors.append([neuron, random.uniform(-1, 1)])
+        # network[1][0].predecessors = [[network[0][0], 1]]
         return network
 
     def run(self):
@@ -45,9 +48,14 @@ class NeuralNetwork:
 class NetworkBatch:
     def __init__(self, structure, lr, gen_size):
         self.networks = []
-        for _ in range(gen_size):
-            print("gen")
-            self.networks.append(NeuralNetwork(structure, lr))
+        if type(structure) == list:
+            for _ in range(gen_size):
+                print("gen")
+                self.networks.append(NeuralNetwork(structure, lr))
+        else:
+            for _ in range(gen_size):
+                print("gen")
+                self.networks.append(structure)
         self.lr = lr
         self.gen_size = gen_size
         self.best = None
@@ -69,7 +77,7 @@ class NetworkBatch:
             self.networks = networks_new
             if gen % 100 == 0:
                 logger.info(str(scores[0][0]) + "\t" + str(scores[-1][0]))
-                pickle.dump(self.best, open(str(gen/100) + ".ai", "wb"))
+                pickle.dump(self.best, open(str(gen / 100) + ".ai", "wb"))
             else:
                 logger.debug(str(scores[0][0]) + "\t" + str(scores[-1][0]))
             del networks_new
@@ -85,10 +93,12 @@ if __name__ == "__main__":
     NN.run()
     print(NN.network[1][0].value)"""
 
+
     def score_func(network: NeuralNetwork):
         network.network[0][0].value = 1
         network.run()
         return abs(network.network[-1][0].value)
 
-    NB = NetworkBatch((1,[1]), 0.0001, 200)
+
+    NB = NetworkBatch((1, [1]), 0.0001, 200)
     NB.train(score_func, 20000)
