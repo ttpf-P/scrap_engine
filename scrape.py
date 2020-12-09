@@ -361,7 +361,7 @@ def main(network):
                     oldx = ob.oldx
                     oldy = ob.oldy
                 except AttributeError:
-                    logging.ERROR("obs errored")
+                    logging.exception("obs errored")
                     return 0
             if len(snake.obs) == 0:
                 dead()
