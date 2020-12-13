@@ -2,13 +2,14 @@ import copy
 import logging
 import pickle
 import random
+import concurrent.futures
 
 import neurons
 
 logger = logging.Logger("ai")
 handler = logging.FileHandler("ai.log")
 logger.addHandler(handler)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 
 class NeuralNetwork:
@@ -59,12 +60,18 @@ class NetworkBatch:
         self.lr = lr
         self.gen_size = gen_size
         self.best = None
+        self.executor = concurrent.futures.ProcessPoolExecutor()
 
     def train(self, score_func, generations):
         for gen in range(generations):
             scores = []
+            futures = []
+            """for network in self.networks:
+                scores.append((score_func(network), network))"""
             for network in self.networks:
-                scores.append((score_func(network), network))
+                futures.append((self.executor.submit(score_func, network), network))
+            for future, network in futures:
+                scores.append((future.result(), network))
             scores.sort()
             networks_new = []
             scores_cut = scores[:20]

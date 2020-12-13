@@ -247,6 +247,7 @@ def main(network):
     start.direction = "t"
 
     global show
+    show = False
     if show:
         map.show()
     set = False
