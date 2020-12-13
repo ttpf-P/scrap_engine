@@ -9,7 +9,7 @@ import neurons
 logger = logging.Logger("ai")
 handler = logging.FileHandler("ai.log")
 logger.addHandler(handler)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 
 class NeuralNetwork:
@@ -74,7 +74,7 @@ class NetworkBatch:
                 scores.append((future.result(), network))
             scores.sort()
             networks_new = []
-            scores_cut = scores[:20]
+            scores_cut = scores[:int(len(scores)/50)]
             for i in range(self.gen_size):
                 chosen = random.choice(scores_cut)
                 networks_new.append(copy.deepcopy(chosen[1]))

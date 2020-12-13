@@ -83,7 +83,7 @@ def menuresize(map, box):
 
 
 def mapresize():
-    width, height = 100, 40
+    width, height = 20, 20
     if map.width != width or map.height != height - 1:
         try:
             map.resize(height - 1, width, " ")
@@ -233,7 +233,7 @@ def main(network):
     walkframe = genframe0 = genframe1 = apple_num = berry_num = framenum = 0
     walkstep = 1
 
-    width, height = 100, 40
+    width, height = 20, 20
     map = se.Map(height - 1, width, " ")
 
     start = Start("#")
@@ -256,7 +256,7 @@ def main(network):
     ai_lookup_dir = {0: "'w'", 1: "'s'", 2: "'a'", 3: "'d'"}
 
 
-    while alive and framenum < 75000:
+    while alive and framenum < 400*len(snake.obs):
         map_raw = snake.obs[0].map.map
         """map_parsed = []
         for line in map_raw:
@@ -278,7 +278,7 @@ def main(network):
                 up_scan[2] = y
 
         down_scan = [-1, -1, -1]
-        for y in range(snake.obs[0].y, 39):
+        for y in range(snake.obs[0].y, 19):
             map_ = map_raw[y][snake.obs[0].x]
             if ai_lookup[map_] == 1 and down_scan[0] == -1:
                 down_scan[0] = y
@@ -298,7 +298,7 @@ def main(network):
                 left_scan[2] = x
 
         right_scan = [-1, -1, -1]
-        for x in range(snake.obs[0].x, 100):
+        for x in range(snake.obs[0].x, 20):
             map_ = map_raw[snake.obs[0].y][x]
             if ai_lookup[map_] == 1 and right_scan[0] == -1:
                 right_scan[0] = x
@@ -317,9 +317,9 @@ def main(network):
             inputs.append(i)
 
         inputs.append(snake.obs[0].y)
-        inputs.append(39 - snake.obs[0].y)
+        inputs.append(19 - snake.obs[0].y)
         inputs.append(snake.obs[0].x)
-        inputs.append(100 - snake.obs[0].x)
+        inputs.append(20 - snake.obs[0].x)
 
         for i in range(len(inputs)):
             network.network[0][i].value = inputs[i]
@@ -403,6 +403,9 @@ if __name__ == "__main__":
         data["structure"] = pickle.load(open(file, "rb"))
         print(data["structure"])
     NB = NN.NetworkBatch(data["structure"], data["lr"], data["batch_size"])
+    if show:
+        import concurrent.futures
+        NB.executor = concurrent.futures.ProcessPoolExecutor(max_workers=1)
     NB.train(main, data["generations"])
     pickle.dump(NB.best, open("best.ai", "wb"))
 
